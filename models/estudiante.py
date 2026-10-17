@@ -71,5 +71,6 @@ class Estudiante(Persona):
                 f"Promedio: {self.__promedio}")
 
     def PerformMainActivity(self):
-        return f"{self.GetNombre()} está estudiando y presentando sus actividades académicas."
+       nombre_programa = self.__programa.GetNombre() if self.__programa is not None else "ningún programa"
+       return f"{self.GetNombre()} cursa {nombre_programa} y está en el semestre {self.__semestre}."
     
