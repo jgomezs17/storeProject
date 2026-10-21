@@ -4,6 +4,7 @@ from models.persona import Persona
 from models.estudiante import Estudiante
 from models.docente import Docente
 from models.administrativo import Administrativo
+from models.horario import Horario
 
 ## ===== Fase 1: programas academicos y asignaturas =====
 print("===== Programas academicos y asignaturas =====")
@@ -35,25 +36,14 @@ Asignaturas1.SetCreditos(4)
 print(programa2.ShowInformation())
 print(Asignaturas1.ShowInformation())
 
-## ===== Probando la clase persona =====
-print("\n===== Persona =====")
-persona1 = Persona("Ana Torres", "1053", "ana.torres@correo.com")
-print(persona1.ShowInformation())
-print(persona1.PerformMainActivity())
-
-# Pruebas de validacion: deben informar el error y NO cambiar el dato
-persona1.SetCorreo("correo-sin-arroba")
-persona1.SetNombre("   ")
-persona1.SetIdentificacion("")
-print(persona1.ShowInformation())
-
-# Un dato valido si se aplica
-persona1.SetNombre("Ana Maria Torres")
-print(persona1)
-
-# Persona creada con un dato invalido: avisa y deja ese campo vacio
-persona2 = Persona("Luis Perez", "2045", "@mal.com")
-print(persona2.ShowInformation())
+## ===== AC2 Fase 1: Persona es abstracta =====
+print("\n===== Persona abstracta =====")
+# No se debe poder crear una Persona directamente
+try:
+    persona1 = Persona("Ana Torres", "1053", "ana.torres@correo.com")
+except TypeError as error:
+    print(f"No se puede crear una Persona directamente: {error}")
+print("El programa sigue funcionando despues del error.")
 
 ## ===== Probando la clase Estudiante (hereda de Persona) =====
 print("\n===== Estudiante valido =====")
@@ -68,6 +58,9 @@ estudiante1.SetPromedio(6.5)
 estudiante1.SetPromedio(-1)
 estudiante1.SetCodigoEstudiantil("")
 estudiante1.SetPrograma("Ingenieria de Sistemas")   # un texto no es un Programa_academico
+estudiante1.SetCorreo("correo-sin-arroba")          # viene de Persona, debe rechazarlo
+estudiante1.SetNombre("   ")                        # viene de Persona, debe rechazarlo
+estudiante1.SetIdentificacion("")                   # viene de Persona, debe rechazarlo
 print(estudiante1.ShowInformation())                # tiene que seguir igual
 
 # Datos validos si se aplican
@@ -106,6 +99,26 @@ admin1.SetNumeroEmpleado(None)
 print(admin1.ShowInformation())                     # tiene que seguir igual
 admin1.SetJornada("tarde")                          # dato valido
 print(admin1.GetJornada())
+
+## ===== AC2 Fase 3: Horario =====
+print("\n===== Horario valido =====")
+horario1 = Horario("Lunes", 8, 10, "Aula 201")
+print(horario1.ShowInformation())
+
+print("\n===== Validaciones de Horario =====")
+horario1.SetDia("   ")
+horario1.SetHora_Inicio(11)    # no puede ser mayor o igual que la hora fin
+horario1.SetHora_Fin(7)        # no puede ser menor o igual que la hora inicio
+horario1.SetHora_Inicio(25)
+horario1.SetSalon("")
+print(horario1.ShowInformation())   # tiene que seguir igual
+
+horario1.SetHora_Fin(12)       # dato valido
+print(horario1.ShowInformation())
+
+print("\n===== Horario con datos invalidos =====")
+horario2 = Horario("", 15, 9, None)
+print(horario2.ShowInformation())
 
 ## ===== Fase 5: recorrido polimorfico =====
 # Personas que faltan para completar 2 estudiantes, 2 docentes y 2 administrativos

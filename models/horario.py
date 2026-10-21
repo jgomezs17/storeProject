@@ -16,7 +16,6 @@ class Horario:
         self.SetHora_Inicio(hora_inicio)
         self.SetSalon(salon)
 
-    # Get y Set de día
     def GetDia(self):
         return self.__dia
 
@@ -26,7 +25,6 @@ class Horario:
             return
         self.__dia = str(dia).strip()
 
-    # Get y Set de hora de inicio
     def GetHora_Inicio(self):
         return self.__hora_inicio
 
@@ -39,7 +37,6 @@ class Horario:
             return
         self.__hora_inicio = hora_inicio
 
-    # Get y Set de hora de fin
     def GetHora_Fin(self):
         return self.__hora_fin
 
@@ -52,7 +49,6 @@ class Horario:
             return
         self.__hora_fin = hora_fin
 
-    # Get y Set de salón
     def GetSalon(self):
         return self.__salon
 
