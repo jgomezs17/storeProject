@@ -5,6 +5,7 @@ from models.estudiante import Estudiante
 from models.docente import Docente
 from models.administrativo import Administrativo
 from models.horario import Horario
+from models.grupo_academico import GrupoAcademico
 
 ## ===== Fase 1: programas academicos y asignaturas =====
 print("===== Programas academicos y asignaturas =====")
@@ -134,3 +135,31 @@ for persona in personas:
     print(persona.ShowInformation())
     print(persona.PerformMainActivity())
     print("-" * 40)
+
+## ===== AC2 Fase 2: Grupo academico =====
+print("\n===== Grupo academico valido =====")
+grupo1 = GrupoAcademico("G01", Asignaturas1, docente1, 2, "Martes", 8, 10, "Aula 301")
+print(grupo1.ShowInformationGrupo())
+
+print("\n===== Matriculas =====")
+grupo1.Matricular_estudiante(estudiante1)    # matricula correcta
+grupo1.Matricular_estudiante(estudiante1)    # duplicado
+grupo1.Matricular_estudiante(estudiante3)    # matricula correcta (llena el grupo)
+grupo1.Matricular_estudiante(estudiante2)    # grupo lleno (capacidad 2)
+print(grupo1.ShowInformationEstudiante())
+
+print("\n===== Retiros =====")
+grupo1.Retirar_estudiante("E001")            # retiro correcto
+grupo1.Retirar_estudiante("E999")            # no esta matriculado
+print(grupo1.ShowInformationGrupo())
+
+print("\n===== Validaciones de Grupo =====")
+grupo1.SetCapacidad_Maxima(0)                # invalido
+grupo1.SetCodigo_Grupo("   ")                # invalido
+grupo1.SetAsignatura("Programacion 1")       # un texto no es un objeto asignaturas
+grupo1.SetDocente(estudiante1)               # un Estudiante no es un Docente
+print(grupo1.ShowInformationGrupo())         # tiene que seguir igual
+
+print("\n===== Segundo grupo =====")
+grupo2 = GrupoAcademico("G02", Asignaturas2, docente2, 30, "Jueves", 14, 16, "Aula 102")
+print(grupo2.ShowInformationGrupo())
