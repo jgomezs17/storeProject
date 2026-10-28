@@ -1,53 +1,115 @@
-Sistema de Gestión Académica
+# Sistema de Gestión Académica
 
-Universidad de Manizales - Facultad de Ciencias e Ingenierías Programación Orientada a Objetos (Python) - Actividad colaborativa N.° 1
+Proyecto en Python desarrollado para el curso de Programación Orientada a Objetos de la Universidad de Manizales (Facultad de Ciencias e Ingenierías).
 
-Integrantes
-Jonathan Gómez Salazar
-Omar Picón Meza
+**Integrantes:** Jonathan Gómez Salazar y Omar Picón Meza
 
-De qué trata el proyecto
+Este repositorio contiene las dos primeras actividades colaborativas, construidas sobre el mismo proyecto:
 
-Es la primera versión de un sistema para una universidad que guarda la información de sus estudiantes, docentes y administrativos, y también la de los programas académicos y las asignaturas.
+- **AC1:** modelado de clases, encapsulamiento, herencia y polimorfismo.
+- **AC2 (versión actual):** clase abstracta, composición y excepciones personalizadas.
 
-Todas las personas tienen datos en común (identificación, nombre y correo), pero cada tipo tiene datos propios y hace cosas distintas. Por eso lo fuimos armando por fases sobre un solo proyecto:
+---
 
-Primero las clases básicas: Persona, Programa_academico y asignaturas, cada una con su constructor y un método para mostrar la información.
-Después el encapsulamiento. Los atributos se consultan y cambian con getters y setters, y los setters revisan que el dato sea válido (por ejemplo, que el correo tenga @ o que los créditos y semestres sean mayores que 0). Si el dato no sirve, el programa avisa del error y no hace el cambio.
-Luego la herencia, con Estudiante, Docente y Administrativo como hijas de Persona.
-Después la sobrescritura de ShowInformation() y PerformMainActivity() en cada hija.
-Por último el polimorfismo, con una sola lista de personas recorrida con un solo ciclo.
+## Descripción
 
-Una aclaración: los métodos los dejamos en inglés, como en el ejemplo de la profesora. ShowInformation() es el mostrar_informacion() de la guía y PerformMainActivity() es el realizar_actividad_principal().
+El sistema modela la gestión académica básica de una universidad: programas académicos, asignaturas, personas vinculadas (estudiantes, docentes y administrativos), grupos académicos con su horario, y la matrícula de estudiantes en esos grupos.
 
-Estructura de archivos
+## Qué cambió en AC2
+
+| Fase | Cambio |
+|---|---|
+| 1 | `Persona` pasa a ser una clase **abstracta**. `PerformMainActivity()` es un método abstracto y ya no se puede crear una `Persona` directamente. |
+| 2 | Nueva clase `GrupoAcademico`, que recibe objetos `asignaturas` y `Docente`, guarda los `Estudiante` matriculados y permite matricular y retirar estudiantes. |
+| 3 | Nueva clase `Horario`, relacionada con `GrupoAcademico` por **composición**. |
+| 4 | Cinco **excepciones personalizadas** que se lanzan desde los métodos donde se detecta cada situación y se capturan en `main.py`. |
+
+El polimorfismo de AC1 se conserva sin cambios (ver sección correspondiente).
+
+## Estructura del proyecto
+
+```
 storeProject/
-├── main.py                       # programa principal, aquí están las pruebas
+├── main.py                        # Archivo principal: ejecuta todas las pruebas
+├── README.md
+├── controllers/
+│   └── registro_academico.py      # Búsqueda de programas y asignaturas por código
+├── exceptions/
+│   └── excepciones.py             # Las 5 excepciones personalizadas
 └── models/
-    ├── persona.py                # clase padre Persona
-    ├── estudiante.py             # Estudiante (hereda de Persona)
-    ├── docente.py                # Docente (hereda de Persona)
-    ├── administrativo.py         # Administrativo (hereda de Persona)
-    ├── programa_academico.py     # clase Programa_academico
-    └── asignaturas.py            # clase asignaturas (se asocia a un programa)
-Cómo ejecutarlo
+    ├── persona.py                 # Clase abstracta (padre)
+    ├── estudiante.py
+    ├── docente.py
+    ├── administrativo.py
+    ├── programa_academico.py
+    ├── asignaturas.py
+    ├── horario.py
+    └── grupo_academico.py
+```
 
-Se necesita tener Python 3 instalado. Se abre una terminal en la carpeta storeProject y se corre:
+## Clases principales
 
+| Clase | Responsabilidad |
+|---|---|
+| `Persona` (abstracta) | Datos comunes: nombre, identificación y correo. Define el método abstracto `PerformMainActivity()`. |
+| `Estudiante` | Hereda de `Persona`. Código estudiantil, programa, semestre y promedio. |
+| `Docente` | Hereda de `Persona`. Número de empleado, facultad, tipo de contratación y horas semanales. |
+| `Administrativo` | Hereda de `Persona`. Número de empleado, dependencia, cargo y jornada. |
+| `Programa_academico` | Datos de un programa de la universidad. |
+| `asignaturas` | Asignatura asociada a un objeto `Programa_academico`. |
+| `Horario` | Día, hora de inicio, hora de fin y salón. |
+| `GrupoAcademico` | Código, asignatura, docente, capacidad máxima, estudiantes matriculados y horario. |
+| `RegistroAcademico` | Guarda listas de programas y asignaturas y las busca por código. |
+
+## Persona como clase abstracta
+
+`Persona` hereda de `ABC` y declara `PerformMainActivity()` con `@abstractmethod`. Se hizo abstracta porque en la universidad no existe una "persona" genérica: siempre es un estudiante, un docente o un administrativo. `Persona` solo reúne lo que las tres tienen en común y obliga a cada hija a implementar su propia actividad principal. Si se intenta crear una `Persona` directamente, Python lanza un `TypeError`, que se demuestra en `main.py`.
+
+## Grupo académico y horario: composición, no herencia
+
+`GrupoAcademico` **contiene** un `Horario`: crea su propio objeto `Horario` dentro del constructor, a partir del día, las horas y el salón que recibe. Es una relación de composición ("tiene un") porque el horario no tiene sentido por separado: describe cuándo y dónde se dicta ese grupo, y si el grupo deja de existir, su horario también.
+
+No corresponde a herencia porque un grupo académico **no es un** horario, ni un horario es un grupo. La herencia modela relaciones "es un" (un `Estudiante` es una `Persona`). Si `GrupoAcademico` heredara de `Horario`, el grupo tendría atributos y métodos que no le pertenecen y se confundirían dos conceptos distintos.
+
+Las demás relaciones del grupo son de asociación: recibe objetos `asignaturas` y `Docente` que ya existen por separado, y guarda una lista de objetos `Estudiante`.
+
+## Excepciones personalizadas
+
+Todas heredan de `Exception`, están definidas en `exceptions/excepciones.py` y se capturan con `try/except` en `main.py`, de modo que el programa continúa después de cada error.
+
+| Excepción | Situación que controla | Dónde se lanza |
+|---|---|---|
+| `EstudianteYaMatriculadoError` | Matricular dos veces al mismo estudiante en un grupo | `GrupoAcademico.Matricular_estudiante()` |
+| `GrupoLlenoError` | Matricular cuando el grupo ya alcanzó su capacidad máxima | `GrupoAcademico.Matricular_estudiante()` |
+| `EstudianteNoMatriculadoError` | Retirar a un estudiante que no está en el grupo | `GrupoAcademico.Retirar_estudiante()` |
+| `AsignaturaNoEncontradaError` | Buscar una asignatura con un código que no existe | `RegistroAcademico.BuscarAsignatura()` |
+| `ProgramaNoEncontradoError` | Buscar un programa con un código que no existe | `RegistroAcademico.BuscarPrograma()` |
+
+Las validaciones de los setters (por ejemplo, un correo sin `@` o créditos menores que 1) siguen funcionando como en AC1: informan el error y no aplican el cambio.
+
+## Herencia, sobrescritura y polimorfismo
+
+- **Herencia:** `Estudiante`, `Docente` y `Administrativo` heredan de `Persona` y no repiten nombre, identificación ni correo.
+- **Sobrescritura:** las tres clases sobrescriben `ShowInformation()` (agregando sus datos propios con `super()`) e implementan `PerformMainActivity()` con un comportamiento distinto cada una.
+- **Polimorfismo:** en `main.py` hay una única lista `personas` con los tres tipos, recorrida con un solo ciclo que llama a `ShowInformation()` y `PerformMainActivity()` sin condicionales por tipo. Sigue funcionando en AC2 porque las clases hijas conservan esos métodos; hacer abstracta a `Persona` solo obliga a implementar `PerformMainActivity()`, que las tres ya implementaban.
+
+## Cómo ejecutar
+
+Requisitos: Python 3.
+
+Desde la carpeta del proyecto:
+
+```
 py main.py
+```
 
-(En Linux o Mac sería python3 main.py.)
+(o `python main.py`, según el sistema). El archivo `main.py` ejecuta las pruebas de todas las fases y muestra en consola los resultados, incluyendo las excepciones controladas.
 
-Al ejecutarlo se ve en la consola cómo se crean los objetos, los cambios válidos, los intentos de poner datos inválidos (que salen como errores) y al final el reporte con todas las personas.
+## Versiones
 
-Herencia, sobrescritura y polimorfismo
+- `Entrega_AC1`: versión de la Actividad Colaborativa 1.
+- `Entrega_AC2`: versión de la Actividad Colaborativa 2.
 
-Herencia: Persona guarda lo que tienen en común los tres tipos: identificación, nombre y correo, con sus getters, setters y validaciones. Estudiante, Docente y Administrativo heredan de ella y usan super().__init__() para no repetir esos atributos. Cada una agrega solo lo suyo. El estudiante tiene código estudiantil, programa, semestre y promedio. El docente tiene número de empleado, facultad, tipo de contratación y horas semanales. El administrativo tiene número de empleado, dependencia, cargo y jornada.
+## Uso de herramientas de inteligencia artificial
 
-Sobrescritura: las tres hijas vuelven a escribir ShowInformation() y PerformMainActivity() con el mismo nombre que tienen en Persona. En ShowInformation() primero se llama al de Persona con super() y después se agregan los datos propios de cada clase. En PerformMainActivity() cada una devuelve algo diferente: el estudiante dice qué programa cursa y en qué semestre está, el docente en qué facultad dicta clases y el administrativo qué cargo tiene y en qué dependencia trabaja.
-
-Polimorfismo: en main.py hay una lista llamada personas con dos estudiantes, dos docentes y dos administrativos. Se recorre con un solo for que llama a ShowInformation() y PerformMainActivity() sin preguntar de qué tipo es cada objeto. Python ejecuta solo la versión que le toca a cada uno, aunque los métodos se llamen igual.
-
-## Uso de inteligencia artificial
-
-Usamos Claude como apoyo durante el trabajo: para entender mejor los conceptos de herencia, sobrescritura y polimorfismo, para proponer cómo organizar las clases y para revisar errores de codigo.
+Se utilizó Claude (Anthropic) como apoyo para comprender conceptos (clases abstractas, composición y excepciones), proponer la estructura de las clases nuevas y revisar errores. El código fue probado, adaptado al estilo del proyecto y ejecutado por los integrantes. El detalle de este uso se declara en el Documento de Decisiones de Diseño.
