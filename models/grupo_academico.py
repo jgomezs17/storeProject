@@ -6,6 +6,9 @@ from models.asignaturas import asignaturas
 from models.docente import Docente
 from models.estudiante import Estudiante
 from models.horario import Horario
+from exceptions.excepciones import (EstudianteYaMatriculadoError,
+                                    GrupoLlenoError,
+                                    EstudianteNoMatriculadoError)
 
 
 class GrupoAcademico:
@@ -75,21 +78,18 @@ class GrupoAcademico:
         if not isinstance(estudiante, Estudiante):
             print("Error: solo se pueden matricular objetos Estudiante.")
             return
-        # OJO: estos dos if y el de Retirar_estudiante se cambian por excepciones en la Fase 4
+        # si ya está en la lista o no hay cupo, se lanza la excepción y no se matricula
         if self.__buscar_estudiante(estudiante.GetCodigoEstudiantil()) is not None:
-            print("Error: el estudiante ya está matriculado en este grupo.")
-            return
+            raise EstudianteYaMatriculadoError(estudiante.GetCodigoEstudiantil(), self.__codigo_grupo)
         if len(self.__estudiantes_matriculados) >= self.__capacidad_maxima:
-            print("Error: el grupo ya está en su capacidad máxima.")
-            return
+            raise GrupoLlenoError(self.__codigo_grupo, self.__capacidad_maxima)
         self.__estudiantes_matriculados.append(estudiante)
         print(f"Matrícula realizada: {estudiante.GetNombre()} en el grupo {self.__codigo_grupo}.")
 
     def Retirar_estudiante(self, codigo_estudiantil):
         estudiante = self.__buscar_estudiante(codigo_estudiantil)
         if estudiante is None:
-            print("Error: ese estudiante no está matriculado en este grupo.")
-            return
+            raise EstudianteNoMatriculadoError(codigo_estudiantil, self.__codigo_grupo)
         self.__estudiantes_matriculados.remove(estudiante)
         print(f"Retiro realizado: {estudiante.GetNombre()} del grupo {self.__codigo_grupo}.")
 

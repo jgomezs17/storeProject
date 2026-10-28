@@ -6,6 +6,12 @@ from models.docente import Docente
 from models.administrativo import Administrativo
 from models.horario import Horario
 from models.grupo_academico import GrupoAcademico
+from controllers.registro_academico import RegistroAcademico
+from exceptions.excepciones import (EstudianteYaMatriculadoError,
+                                    GrupoLlenoError,
+                                    EstudianteNoMatriculadoError,
+                                    AsignaturaNoEncontradaError,
+                                    ProgramaNoEncontradoError)
 
 ## ===== Fase 1: programas academicos y asignaturas =====
 print("===== Programas academicos y asignaturas =====")
@@ -137,20 +143,49 @@ for persona in personas:
     print("-" * 40)
 
 ## ===== AC2 Fase 2: Grupo academico =====
+# Va al final porque usa objetos creados arriba (estudiante3, docente2, etc.)
 print("\n===== Grupo academico valido =====")
 grupo1 = GrupoAcademico("G01", Asignaturas1, docente1, 2, "Martes", 8, 10, "Aula 301")
 print(grupo1.ShowInformationGrupo())
 
+## ===== AC2 Fase 4: Excepciones personalizadas =====
 print("\n===== Matriculas =====")
-grupo1.Matricular_estudiante(estudiante1)    # matricula correcta
-grupo1.Matricular_estudiante(estudiante1)    # duplicado
-grupo1.Matricular_estudiante(estudiante3)    # matricula correcta (llena el grupo)
-grupo1.Matricular_estudiante(estudiante2)    # grupo lleno (capacidad 2)
+# estudiante4 tiene datos validos (estudiante2 quedo con el codigo vacio)
+estudiante4 = Estudiante("Andrea Mora", "1205", "andrea.mora@correo.com", "E003", programa1, 4, 4.0)
+
+try:
+    grupo1.Matricular_estudiante(estudiante1)    # matricula correcta
+except (EstudianteYaMatriculadoError, GrupoLlenoError) as error:
+    print(f"Error: {error}")
+
+try:
+    grupo1.Matricular_estudiante(estudiante1)    # duplicado
+except (EstudianteYaMatriculadoError, GrupoLlenoError) as error:
+    print(f"Error: {error}")
+
+try:
+    grupo1.Matricular_estudiante(estudiante3)    # matricula correcta (llena el grupo)
+except (EstudianteYaMatriculadoError, GrupoLlenoError) as error:
+    print(f"Error: {error}")
+
+try:
+    grupo1.Matricular_estudiante(estudiante4)    # grupo lleno (capacidad 2)
+except (EstudianteYaMatriculadoError, GrupoLlenoError) as error:
+    print(f"Error: {error}")
+
 print(grupo1.ShowInformationEstudiante())
 
 print("\n===== Retiros =====")
-grupo1.Retirar_estudiante("E001")            # retiro correcto
-grupo1.Retirar_estudiante("E999")            # no esta matriculado
+try:
+    grupo1.Retirar_estudiante("E001")            # retiro correcto
+except EstudianteNoMatriculadoError as error:
+    print(f"Error: {error}")
+
+try:
+    grupo1.Retirar_estudiante("E999")            # no esta matriculado
+except EstudianteNoMatriculadoError as error:
+    print(f"Error: {error}")
+
 print(grupo1.ShowInformationGrupo())
 
 print("\n===== Validaciones de Grupo =====")
@@ -163,3 +198,37 @@ print(grupo1.ShowInformationGrupo())         # tiene que seguir igual
 print("\n===== Segundo grupo =====")
 grupo2 = GrupoAcademico("G02", Asignaturas2, docente2, 30, "Jueves", 14, 16, "Aula 102")
 print(grupo2.ShowInformationGrupo())
+
+## ===== AC2 Fase 4: busqueda de asignaturas y programas =====
+print("\n===== Busquedas =====")
+registro = RegistroAcademico()
+registro.AgregarPrograma(programa1)
+registro.AgregarPrograma(programa2)
+registro.AgregarAsignatura(Asignaturas1)
+registro.AgregarAsignatura(Asignaturas2)
+
+try:
+    encontrada = registro.BuscarAsignatura("600189")    # existe
+    print(encontrada.ShowInformation())
+except AsignaturaNoEncontradaError as error:
+    print(f"Error: {error}")
+
+try:
+    encontrada = registro.BuscarAsignatura("999999")    # no existe
+    print(encontrada.ShowInformation())
+except AsignaturaNoEncontradaError as error:
+    print(f"Error: {error}")
+
+try:
+    encontrado = registro.BuscarPrograma("ISIS01")      # existe
+    print(encontrado.ShowInformation())
+except ProgramaNoEncontradoError as error:
+    print(f"Error: {error}")
+
+try:
+    encontrado = registro.BuscarPrograma("XXXX99")      # no existe
+    print(encontrado.ShowInformation())
+except ProgramaNoEncontradoError as error:
+    print(f"Error: {error}")
+
+print("\nEl programa continuo su ejecucion despues de controlar todas las excepciones.")
